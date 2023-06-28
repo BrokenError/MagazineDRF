@@ -35,7 +35,7 @@ def liked_products(content, user):
 
 
 def history_orders(user_id):
-    orders = Order.objects.filter(user_id=user_id).order_by('-created')[:20]
+    orders = Order.objects.filter(user_id=user_id).order_by('-created')
     return orders
 
 

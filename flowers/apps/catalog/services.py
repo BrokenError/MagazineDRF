@@ -7,6 +7,7 @@ from apps.products.models import Products, Rating
 from apps.users.models import UserLike
 
 
+# TODO can be better
 def get_like_and_rating(content):
     content.update(get_rating_catalog(content))
     content.update(show_like_product(content))

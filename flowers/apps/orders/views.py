@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.cart.cart import Cart
-from orders.services import order_create
+from apps.orders.services import order_create
 
 
 class CreateOrderAPIView(APIView):
