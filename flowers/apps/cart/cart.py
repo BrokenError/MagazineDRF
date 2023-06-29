@@ -15,11 +15,12 @@ class Cart(object):
     def __iter__(self):
         product_ids = self.cart.keys()
 
-        products = Products.objects.filter(id__in=product_ids)
+        products = Products.objects.filter(id__in=product_ids).values()
 
         cart = self.cart.copy()
+        print(products)
         for product in products:
-            cart[str(product.id)]['product'] = product
+            cart[str(product['id'])]['product'] = product
 
         for item in cart.values():
             item['price'] = Decimal(item['price'])
