@@ -28,7 +28,7 @@ class ShopsAPIView(APIView):
 
 class ShowReviewsAPIView(APIView):
     def get(self, request, prod_slug):
-        content = base_content(self, {'prod_slug': prod_slug})
+        content = base_content({'prod_slug': prod_slug}, request.user.id)
         content.update({'reviews': Reviews.objects.filter(product=content['product']['id']).
                        order_by('-date_uploaded').values()})
         return Response({'content': content})
@@ -36,15 +36,15 @@ class ShowReviewsAPIView(APIView):
 
 class ShowCommentsAPIView(APIView):
     def get(self, request, prod_slug):
-        content = base_content(self, {'prod_slug': prod_slug})
+        content = base_content({'prod_slug': prod_slug}, request.user.id)
         content.update({'comments': Comments.objects.filter(product=content['product']['id']).
                        order_by('-date').values()})
         return Response({'content': content})
 
 
-@login_required
 class AddReviewsAPIView(APIView):
     @staticmethod
+    @login_required
     def post(request, pk):
         request.data['user'] = request.user.id
         request.data['product'] = pk
@@ -52,9 +52,9 @@ class AddReviewsAPIView(APIView):
         return Response({'result': review})
 
 
-@login_required
 class AddCommentsAPIView(APIView):
     @staticmethod
+    @login_required
     def post(request, pk):
         request.data['user'] = request.user.id
         request.data['product'] = pk
@@ -62,57 +62,58 @@ class AddCommentsAPIView(APIView):
         return Response({'result': comment})
 
 
-@login_required
 class ChangeReviewAPIView(APIView):
     @staticmethod
     def get(request, product_id, review_id):
         return Response({'comment': Reviews.objects.filter(product_id=product_id).filter(id=review_id).values()})
 
+
     @staticmethod
+    @login_required
     def post(request, product_id, review_id):
         request.data['user'] = request.user.id
         request.data['product'] = product_id
         request.data['review_id'] = review_id
         review = valid_serializer(ReviewSerializer(data=request.data,
-                                                   instance=Reviews.objects.get(product_id=product_id)))
+                                                   instance=Reviews.objects.get(id=review_id)))
         return Response({'result': review})
 
 
-@login_required
 class ChangeCommentAPIView(APIView):
     @staticmethod
     def get(request, product_id, comment_id):
         return Response({'comment': Comments.objects.filter(product_id=product_id).filter(id=comment_id).values()})
 
     @staticmethod
+    @login_required
     def post(request, product_id, comment_id):
         request.data['user'] = request.user.id
         request.data['product'] = product_id
         request.data['comment_id'] = comment_id
-        comment = valid_serializer(ReviewSerializer(data=request.data,
-                                                    instance=Comments.objects.get(product_id=product_id)))
+        comment = valid_serializer(CommentSerializer(data=request.data,
+                                                     instance=Comments.objects.get(id=comment_id)))
         return Response({'result': comment})
 
 
-@login_required
 class DeleteReviewAPIView(APIView):
     @staticmethod
+    @login_required
     def post(request, review_id):
         Reviews.objects.get(id=review_id).delete()
         return Response({'result': f'Отзыв {review_id} успешно удален'})
 
 
-@login_required
 class DeleteCommentAPIView(APIView):
     @staticmethod
+    @login_required
     def post(request, comment_id):
         Comments.objects.get(id=comment_id).delete()
         return Response({"result": f'Комментарий {comment_id} успешно удален'})
 
 
-@login_required
 class GradeProductAPIView(APIView):
     @staticmethod
+    @login_required
     def post(request, product_id):
         rate_the_product(product_id, request.user, request.data['grade'])
         return Response({'result': 'Оценка успешно поставлена'})
