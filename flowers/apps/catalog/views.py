@@ -13,10 +13,12 @@ class SearchResultAPIView(APIView):
 
     @staticmethod
     def post(request):
-        search = request.data['prod_title_search']
-        if search:
-            content = search_magazine(search)
-            return Response({"content": content})
+        try:
+            search = request.data['prod_title_search']
+        except KeyError:
+            return Response({"result": "not result"})
+        content = search_magazine(search)
+        return Response({"content": content})
 
 
 class MagazineCatalogAPIView(APIView):
