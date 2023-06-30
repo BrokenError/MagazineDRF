@@ -12,19 +12,19 @@ from apps.cart.services import liked_products, history_orders, update_quantity, 
 def cart_add(request, product_id):
     serializer = CartAddProductSerializer(data=request.data)
     add_product_in_cart(Cart(request), serializer, product_id)
-    return Response({"result": Cart(request)})
+    return Response({"cart": Cart(request).cart.values()})
 
 
 @api_view(['GET', 'POST'])
 def cart_remove(request, product_id):
     delete_product_from_cart(Cart(request), product_id)
-    return Response({"result": f" удален товар с номером{product_id}", 'cart': Cart(request)})
+    return Response({"result": f" удален товар с номером{product_id}", 'cart': Cart(request).cart.values()})
 
 
 @api_view(['GET', 'POST'])
 def cart_detail(request):
     cart = update_quantity(Cart(request))
-    return Response({'cart': cart})
+    return Response({'cart': cart.cart})
 
 
 class HistoryOrdersAPIView(APIView):
@@ -36,6 +36,6 @@ class HistoryOrdersAPIView(APIView):
 class LikedPagesAPIView(APIView):
     @staticmethod
     def get(request):
-        content = liked_products({}, request.user)
+        content = liked_products({}, request.user.id)
         paginate = paginator_page(10, content['products'], request)
         return paginate

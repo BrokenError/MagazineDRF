@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIRequestFactory, APITestCase, APIClient
 
 from apps.catalog.models import Categories
-from apps.products.models import Products, Comments, Reviews, Rating
+from apps.products.models import Products, Comments
 from apps.products.serializers import ReviewSerializer, CommentSerializer
 from apps.products.services import base_content
 
@@ -142,7 +142,8 @@ class TestProducts(APITestCase):
         self.client.force_authenticate(user=self.user)
         write_text(f"Проверка-добавления-комментария")
         product = self.create_product()
-        response = self.client.post(f'/add-comment/{product.id}', {"user": "1", "product": "1", 'text': 'success'}, format='json')
+        response = self.client.post(f'/add-comment/{product.id}', {"user": "1", "product": "1", 'text': 'success'},
+                                    format='json')
         print(response)
         logging.log(51, response.json())
 
@@ -152,7 +153,8 @@ class TestProducts(APITestCase):
         self.client.force_authenticate(user=self.user)
         write_text(f"Проверка-изменения-отзыва")
         review = self.add_review()
-        response = self.client.post(f'/change-review/{self.product.id}/{review.id}', {"name": "success", "text": "test"}, format='json')
+        response = self.client.post(f'/change-review/{self.product.id}/{review.id}', {"name": "success",
+                                                                                      "text": "test"}, format='json')
         print(response)
         logging.log(51, response.json()['result'])
 
@@ -162,7 +164,8 @@ class TestProducts(APITestCase):
         self.client.force_authenticate(user=self.user)
         write_text(f"Проверка-изменения-комментария")
         comment = self.add_comment()
-        response = self.client.post(f'/change-comment/{self.product.id}/{comment.id}', {"text": "success"}, format='json')
+        response = self.client.post(f'/change-comment/{self.product.id}/{comment.id}', {"text": "success"},
+                                    format='json')
         print(response)
         logging.log(51, response.json()['result'])
 

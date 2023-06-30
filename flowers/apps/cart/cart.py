@@ -18,7 +18,6 @@ class Cart(object):
         products = Products.objects.filter(id__in=product_ids).values()
 
         cart = self.cart.copy()
-        print(products)
         for product in products:
             cart[str(product['id'])]['product'] = product
 
