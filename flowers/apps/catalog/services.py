@@ -19,7 +19,9 @@ def search_magazine(query):
         products = Products.objects.filter(Q(title__icontains=query) or Q(slug__icontains=query))
         content = {'products': products.values()}
         content.update(get_like_and_rating(content))
-        return content
+    else:
+        content = Products.objects.all().values()
+    return content
 
 
 def magazine_catalog():

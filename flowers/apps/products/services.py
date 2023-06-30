@@ -10,18 +10,18 @@ from apps.users.models import ReplyComments
 from apps.users.serializer import ReplyCommentsSerializer
 
 
-def base_content(self, content):
-    product = Products.objects.get(slug=self.kwargs['prod_slug'])
-    user_orders = Order.objects.filter(user_id=self.request.user.id).values()
+def base_content(content, user_id):
+    product = Products.objects.get(slug=content['prod_slug'])
+    user_orders = Order.objects.filter(user_id=user_id).values()
     content['stars'] = Rating.objects.filter(prod=product.id).aggregate(Avg('star')).get('star__avg')
-    content['product_paid'] = False
-    content['check_like'] = product.check_like.filter(user_id=self.request.user.id, product=product).exists()
+    content['check_like'] = product.check_like.filter(user_id=user_id, product=product).exists()
     check_buy = user_orders.filter(linkorder__product=product.id)
-    check_not_review = not product.check_review.filter(user=self.request.user.id).exists()
+    check_not_review = not product.check_review.filter(user=user_id).exists()
+    content['product_paid'] = False
     if check_buy:
         content['product_paid'] = True
-    content.update({'product': ProductSerializer(product).data, 'star': [1, 2, 3, 4, 5],
-                    'cart_product_form': CartAddProductSerializer().data, 'check_not_review': check_not_review})
+    content.update({'product': ProductSerializer(product).data, 'cart_product_form': CartAddProductSerializer().data,
+                    'check_not_review': check_not_review})
     return content
 
 
@@ -71,6 +71,9 @@ def rate_the_product(product_id, user, grade):
 
 
 def change_reply_comment(data, reply_comment_id):
+    change = ReplyComments.objects.get(pk=reply_comment_id)
+    data['product'] = change.product_id
+    data['comment'] = change.comment_id
     serializer = ReplyCommentsSerializer(data=data)
     serializer.is_valid(raise_exception=True)
     serializer.update(instance=ReplyComments.objects.get(id=reply_comment_id), validated_data=data)

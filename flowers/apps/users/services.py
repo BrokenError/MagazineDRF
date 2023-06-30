@@ -12,8 +12,8 @@ def reply_comment(user, data):
     valid = serializer.is_valid(raise_exception=True)
     if valid:
         ReplyComments.objects.create(user=user, text=serializer.data['text'],
-                                     product=Products.objects.get(pk=data['pk_product']),
-                                     comment=Comments.objects.get(pk=data['pk_comment']))
+                                     product=Products.objects.get(pk=data['product']),
+                                     comment=Comments.objects.get(pk=data['comment']))
         return serializer.data
     return valid
 
@@ -27,20 +27,10 @@ def register_user(data):
     return valid_data
 
 
-def add_phone(data):
-    serializer = AddPhoneSerializer(data=data)
-    valid = serializer.is_valid(raise_exception=True)
-    if valid:
-        serializer.save()
-        return {"success": "Номер телефона успешно добавлен"}
-    else:
-        return valid
-
-
-def change_user_info(data):
+def change_user_info(user_profile, data):
     serializer = SaveDataUserSerializer(data=data)
     if serializer.is_valid(raise_exception=True):
-        serializer.save()
+        serializer.update(instance=user_profile, validated_data=data)
         return {"success": "Данные успешно обновлены", "results": serializer.data}
     else:
         return {"errors": serializer.errors}
