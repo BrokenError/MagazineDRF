@@ -71,6 +71,9 @@ def rate_the_product(product_id, user, grade):
 
 
 def change_reply_comment(data, reply_comment_id):
+    change = ReplyComments.objects.get(pk=reply_comment_id)
+    data['product'] = change.product_id
+    data['comment'] = change.comment_id
     serializer = ReplyCommentsSerializer(data=data)
     serializer.is_valid(raise_exception=True)
     serializer.update(instance=ReplyComments.objects.get(id=reply_comment_id), validated_data=data)

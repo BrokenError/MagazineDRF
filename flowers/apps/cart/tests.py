@@ -1,27 +1,15 @@
 import logging
-import time
-
 from django.contrib.auth.models import User
-from rest_framework.test import APIRequestFactory, APITestCase, APIClient
-from apps.products.tests import write_text
+from rest_framework.test import APITestCase, APIClient
+
 from apps.catalog.models import Categories
-from apps.products.models import Products, Comments
-from apps.products.serializers import ReviewSerializer, CommentSerializer
-from apps.products.services import base_content
+from apps.products.models import Products
+from apps.products.tests import write_text, time_of_function
 
 logging.basicConfig(level=51, format="Logs: %(message)s")
 
 
-def time_of_function(function):
-    def wrapped(*args, **kwargs):
-        start_time = time.perf_counter()
-        res = function(*args, **kwargs)
-        logging.log(51, "Время выполнения: {0:.4f} сек".format(time.perf_counter() - start_time))
-        return res
-    return wrapped
-
-
-class TestProducts(APITestCase):
+class TestCart(APITestCase):
     """ Тестирование корзины """
 
     @classmethod
@@ -30,11 +18,8 @@ class TestProducts(APITestCase):
 
     @classmethod
     def setUp(cls):
-        factory = APIRequestFactory()
         client = APIClient()
         cls.default_time = '2000-01-01 00:00:00+03'
-        cls.comment = Comments.objects.first()
-        cls.factory = factory
         cls.client = client
 
     def create_superuser(self):

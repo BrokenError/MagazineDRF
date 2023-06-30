@@ -1,13 +1,10 @@
 import logging
+
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient, APITestCase
-from django.contrib.auth.models import User
-from django.test import TestCase, Client
 
 from apps.catalog.models import Categories
-from apps.catalog.services import show_categories, search_magazine
 from apps.products.models import Products
-from apps.products.services import rate_the_product
 from apps.products.tests import write_text, time_of_function
 
 logging.basicConfig(level=51, format="Logs: %(message)s")
@@ -36,6 +33,9 @@ class TestCatalog(APITestCase):
     def create_category(self):
         self.category = Categories(1, 'Букеты', 'byketi', self.default_time)
         self.category.save()
+
+    def create_and_authorization(self):
+        self.client.force_authenticate(user=self.user)
 
     def create_product(self):
         self.create_category()
