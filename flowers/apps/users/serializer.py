@@ -29,8 +29,16 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
 class SaveDataUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User, Profile
-        fields = ("first_name", "last_name", "bio", "country", "city", "birth_date")
+        model = Profile
+        fields = ("bio", "country", "city", "birth_date")
+
+    def update(self, instance, validated_data):
+        instance.bio = validated_data.get('bio', instance.bio)
+        instance.country = validated_data.get('country', instance.country)
+        instance.city = validated_data.get('city', instance.city)
+        instance.birth_date = validated_data.get('birth_date', instance.birth_date)
+        instance.save()
+        return instance
 
 
 class AddPhoneSerializer(serializers.ModelSerializer):

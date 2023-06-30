@@ -1,4 +1,5 @@
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
@@ -8,8 +9,8 @@ from rest_framework.views import APIView
 
 from apps.products.services import change_reply_comment
 from apps.users.models import ReplyComments
-from apps.users.serializer import AddPhoneSerializer, ChangePasswordSerializer, UserSerializer
-from apps.users.services import like_product, reply_comment, delete_user, add_phone, register_user, change_user_info
+from apps.users.serializer import AddPhoneSerializer, ChangePasswordSerializer, UserSerializer, SaveDataUserSerializer
+from apps.users.services import like_product, reply_comment, delete_user, register_user, change_user_info
 
 
 class RegisterUserAPIView(APIView):
@@ -21,7 +22,7 @@ class RegisterUserAPIView(APIView):
 
 @api_view(["POST"])
 def verify_code(request):
-    serializer = AddPhoneSerializer(instance=request.user.user_profile)
+    serializer = AddPhoneSerializer(data=request.data, instance=request.user.user_profile)
     valid = serializer.is_valid(raise_exception=True)
     if valid:
         request.user.user_profile.is_phone_verified = True
@@ -54,30 +55,30 @@ class ChangePasswordAPIView(generics.UpdateAPIView):
 
 class UserInfoAPIView(APIView):
     @staticmethod
-    def post(request):
+    @login_required
+    def get(request):
         return Response({"user": UserSerializer(request.user).data})
 
 
 class UserPersonalAPIView(APIView):
     @staticmethod
+    @login_required
     def get(request):
-        return Response({"user": UserSerializer(request.user).data})
+        return Response({"user": UserSerializer(request.user).data,
+                         'profile': SaveDataUserSerializer(request.data).data})
 
     @staticmethod
+    @login_required
     def post(request):
-        content = change_user_info(request.data)
+        content = change_user_info(request.user.user_profile, request.data)
         return Response(content)
 
 
 class UserSecurityAPIView(APIView):
     @staticmethod
+    @login_required
     def get(request):
         return Response({"user": UserSerializer(request.user).data})
-
-    @staticmethod
-    def post(request):
-        content = add_phone(request.data)
-        return Response({"result": content})
 
 
 @api_view(['GET', 'POST'])
@@ -109,15 +110,13 @@ class ReplyCommentsAPIView(APIView):
 
 
 @api_view(['GET', 'POST'])
-def delete_reply_comment(request, pk):
-    ReplyComments.objects.get(pk=pk).delete()
+def delete_reply_comment(request, pk_reply_comment):
+    ReplyComments.objects.get(pk=pk_reply_comment).delete()
     return Response({"result": 'Ответный комментарий удален'})
 
 
 @api_view(['POST'])
-def reply_message_change(request, product_id, comment_id, replcomment):
-    request.data['product'] = product_id
+def reply_message_change(request, replcomment):
     request.data['user'] = request.user.id
-    request.data['comment'] = comment_id
     change_reply_comment(request.data, replcomment)
     return Response({"result": "Ответный комментарий изменен"})

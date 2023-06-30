@@ -7,10 +7,14 @@ Django==4.2.2
 django-phonenumber-field==7.1.0
 djangorestframework==3.14.0
 idna==3.4
+iniconfig==2.0.0
+packaging==23.1
 phonenumbers==8.13.14
 Pillow==9.5.0
+pluggy==1.2.0
 psycopg-binary==3.1.9
 psycopg2-binary==2.9.6
+pytest==7.4.0
 pytz==2023.3
 reportlab==4.0.4
 requests==2.31.0
